@@ -1,0 +1,11 @@
+{
+  "main.js": {
+    "file": "assets/esch-software-pflicht-daten-cockpit-C58CHiFp.js",
+    "name": "esch-software-pflicht-daten-cockpit",
+    "src": "main.js",
+    "isEntry": true,
+    "css": [
+      "assets/esch-software-pflicht-daten-cockpit-BKSV0yK5.css"
+    ]
+  }
+}
