@@ -1,0 +1,24 @@
+{% sw_extends '@Storefront/storefront/component/checkout/offcanvas-cart.html.twig' %}
+
+{% block component_offcanvas_cart_actions_checkout %}
+    {% set isCartNotEmpty = page.cart.lineItems|length > 0 %}
+    {% set gpsrBlocked = page.extensions.eschPdcGpsrBlocked.blocked|default(false) %}
+
+    <div class="d-grid">
+        {% if gpsrBlocked %}
+            <button type="button"
+                    class="btn begin-checkout-btn mb-2 btn-light"
+                    disabled
+                    aria-disabled="true"
+                    data-testid="pdc-checkout-blocked">
+                {{ 'checkout.proceedToCheckout'|trans|sw_sanitize }}
+            </button>
+        {% else %}
+            <a href="{{ path('frontend.checkout.confirm.page') }}"
+               class="btn begin-checkout-btn mb-2{% if isCartNotEmpty %} btn-primary{% else %} btn-light{% endif %}{% if not isCartNotEmpty %} disabled{% endif %}"
+               title="{{ 'checkout.proceedToCheckout'|trans|striptags }}">
+                {{ 'checkout.proceedToCheckout'|trans|sw_sanitize }}
+            </a>
+        {% endif %}
+    </div>
+{% endblock %}

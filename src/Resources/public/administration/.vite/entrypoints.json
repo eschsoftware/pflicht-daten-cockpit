@@ -1,0 +1,25 @@
+{
+  "base": "/bundles/eschsoftwarepflichtdatencockpit/administration/",
+  "entryPoints": {
+    "esch-software-pflicht-daten-cockpit": {
+      "css": [
+        "/bundles/eschsoftwarepflichtdatencockpit/administration/assets/esch-software-pflicht-daten-cockpit-BKSV0yK5.css"
+      ],
+      "dynamic": [],
+      "js": [
+        "/bundles/eschsoftwarepflichtdatencockpit/administration/assets/esch-software-pflicht-daten-cockpit-C58CHiFp.js"
+      ],
+      "legacy": false,
+      "preload": []
+    }
+  },
+  "legacy": false,
+  "metadatas": {},
+  "version": [
+    "7.1.0",
+    7,
+    1,
+    0
+  ],
+  "viteServer": null
+}
