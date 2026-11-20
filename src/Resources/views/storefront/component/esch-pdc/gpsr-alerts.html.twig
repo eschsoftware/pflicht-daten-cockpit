@@ -1,0 +1,9 @@
+{% for error in page.cart.errors.elements %}
+    {% if error.messageKey == 'esch-pdc-gpsr-manufacturer-blocked' %}
+        {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+            type: 'danger',
+            content: 'error.esch-pdc-gpsr-manufacturer-blocked'|trans({'%name%': error.name})|sw_sanitize,
+            announceOnLoad: true
+        } %}
+    {% endif %}
+{% endfor %}

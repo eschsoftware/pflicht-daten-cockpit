@@ -1,0 +1,8 @@
+{
+    "error": {
+        "esch-pdc-gpsr-manufacturer-blocked": "„%name%“ kann nicht bestellt werden. Herstellername, Postanschrift oder E-Mail-Kontakt fehlen."
+    },
+    "checkout": {
+        "esch-pdc-gpsr-manufacturer-blocked": "„%name%“ kann nicht bestellt werden. Herstellername, Postanschrift oder E-Mail-Kontakt fehlen."
+    }
+}

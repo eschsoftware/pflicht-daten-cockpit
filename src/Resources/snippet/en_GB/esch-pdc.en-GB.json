@@ -1,0 +1,8 @@
+{
+    "error": {
+        "esch-pdc-gpsr-manufacturer-blocked": "\"%name%\" cannot be ordered. The manufacturer name, postal address or email contact is missing."
+    },
+    "checkout": {
+        "esch-pdc-gpsr-manufacturer-blocked": "\"%name%\" cannot be ordered. The manufacturer name, postal address or email contact is missing."
+    }
+}

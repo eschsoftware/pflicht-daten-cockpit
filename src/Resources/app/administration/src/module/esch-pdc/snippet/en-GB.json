@@ -1,0 +1,42 @@
+{
+    "esch-pdc": {
+        "general": {
+            "menuItem": "Mandatory data",
+            "description": "Which products cannot be ordered because GPSR manufacturer details are missing."
+        },
+        "missing": {
+            "manufacturer": "Manufacturer",
+            "name": "Name",
+            "address": "Address",
+            "contact": "Contact"
+        },
+        "overview": {
+            "title": "Mandatory Data Cockpit",
+            "intro": "Active products without a manufacturer name, postal address or email contact cannot be ordered. This check is a technical aid and does not replace a legal assessment. This version does not check safety instructions or the EU responsible person.",
+            "countChecked": "Checked",
+            "countOpen": "Gaps",
+            "countOk": "Complete",
+            "filterAll": "All",
+            "filterOpen": "Gaps only",
+            "filterOk": "Complete only",
+            "searchLabel": "Search",
+            "searchPlaceholder": "Product number or name",
+            "searchSubmit": "Search",
+            "columnNumber": "Product number",
+            "columnName": "Name",
+            "columnManufacturer": "Manufacturer",
+            "columnMissing": "Missing details",
+            "columnStatus": "Status",
+            "statusOpen": "Gap",
+            "statusOk": "Complete",
+            "missingNone": "None",
+            "noManufacturer": "No manufacturer",
+            "openProduct": "Open product",
+            "emptyTitle": "No products in this view",
+            "emptyText": "Change the filter or the search. Inactive products and parent products with variants are hidden.",
+            "loadError": "The overview could not be loaded. Reload the page.",
+            "prev": "Previous",
+            "next": "Next"
+        }
+    }
+}
