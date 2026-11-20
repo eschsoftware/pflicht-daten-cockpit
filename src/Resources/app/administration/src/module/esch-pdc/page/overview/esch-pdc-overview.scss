@@ -1,0 +1,67 @@
+.esch-pdc-overview__intro {
+    margin-bottom: 16px;
+}
+
+.esch-pdc-overview__counts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.esch-pdc-overview__count {
+    min-width: 140px;
+    padding: 12px 16px;
+    border: 1px solid #d1d9e0;
+    border-radius: 8px;
+    background: #fff;
+    text-align: left;
+    cursor: pointer;
+}
+
+.esch-pdc-overview__count-value {
+    display: block;
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 1.1;
+}
+
+.esch-pdc-overview__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: end;
+    margin-bottom: 16px;
+}
+
+.esch-pdc-overview__search {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 220px;
+    font-size: 12px;
+}
+
+.esch-pdc-overview__search input {
+    height: 36px;
+    padding: 0 10px;
+    border: 1px solid #d1d9e0;
+    border-radius: 4px;
+}
+
+.esch-pdc-overview__link {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #0f3d32;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.esch-pdc-overview__pager {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-top: 16px;
+}

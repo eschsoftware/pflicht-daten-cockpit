@@ -1,0 +1,115 @@
+{% block esch_pdc_overview %}
+<sw-page class="esch-pdc-overview">
+    <template #smart-bar-header>
+        <h2>{{ $tc('esch-pdc.overview.title') }}</h2>
+    </template>
+
+    <template #content>
+        <sw-card :isLoading="isLoading" :large="true">
+            <sw-alert variant="info" class="esch-pdc-overview__intro">
+                {{ $tc('esch-pdc.overview.intro') }}
+            </sw-alert>
+
+            <sw-alert v-if="error" variant="error">
+                {{ error }}
+            </sw-alert>
+
+            <div class="esch-pdc-overview__counts">
+                <button type="button" class="esch-pdc-overview__count" data-testid="pdc-count-checked" @click="setStatus('all')">
+                    <span class="esch-pdc-overview__count-value">{{ counts.checked }}</span>
+                    <span>{{ $tc('esch-pdc.overview.countChecked') }}</span>
+                </button>
+                <button type="button" class="esch-pdc-overview__count" data-testid="pdc-count-open" @click="setStatus('open')">
+                    <span class="esch-pdc-overview__count-value">{{ counts.open }}</span>
+                    <span>{{ $tc('esch-pdc.overview.countOpen') }}</span>
+                </button>
+                <button type="button" class="esch-pdc-overview__count" data-testid="pdc-count-ok" @click="setStatus('ok')">
+                    <span class="esch-pdc-overview__count-value">{{ counts.ok }}</span>
+                    <span>{{ $tc('esch-pdc.overview.countOk') }}</span>
+                </button>
+            </div>
+
+            <div class="esch-pdc-overview__toolbar">
+                <sw-button size="small" :variant="status === 'all' ? 'primary' : 'secondary'" data-testid="pdc-filter-all" @click="setStatus('all')">
+                    {{ $tc('esch-pdc.overview.filterAll') }}
+                </sw-button>
+                <sw-button size="small" :variant="status === 'open' ? 'primary' : 'secondary'" data-testid="pdc-filter-open" @click="setStatus('open')">
+                    {{ $tc('esch-pdc.overview.filterOpen') }}
+                </sw-button>
+                <sw-button size="small" :variant="status === 'ok' ? 'primary' : 'secondary'" data-testid="pdc-filter-ok" @click="setStatus('ok')">
+                    {{ $tc('esch-pdc.overview.filterOk') }}
+                </sw-button>
+
+                <label class="esch-pdc-overview__search">
+                    <span>{{ $tc('esch-pdc.overview.searchLabel') }}</span>
+                    <input
+                        type="search"
+                        data-testid="pdc-search"
+                        :value="term"
+                        :placeholder="$tc('esch-pdc.overview.searchPlaceholder')"
+                        @input="term = $event.target.value"
+                        @keydown.enter.prevent="search"
+                    >
+                </label>
+                <sw-button variant="primary" size="small" data-testid="pdc-search-submit" @click="search">
+                    {{ $tc('esch-pdc.overview.searchSubmit') }}
+                </sw-button>
+            </div>
+
+            <sw-empty-state
+                v-if="!isLoading && !error && items.length === 0"
+                :title="$tc('esch-pdc.overview.emptyTitle')"
+                :subline="$tc('esch-pdc.overview.emptyText')"
+            ></sw-empty-state>
+
+            <sw-data-grid
+                v-else
+                :dataSource="items"
+                :columns="columns"
+                :showSelection="false"
+                :isLoading="isLoading"
+                :showActions="false"
+            >
+                <template #column-productNumber="{ item }">
+                    <button
+                        type="button"
+                        class="esch-pdc-overview__link"
+                        :data-testid="'pdc-open-' + item.productNumber"
+                        @click="openProduct(item.productId)"
+                    >
+                        {{ item.productNumber }}
+                    </button>
+                </template>
+
+                <template #column-productName="{ item }">
+                    <span :data-testid="'pdc-row-' + item.productNumber">{{ item.productName }}</span>
+                </template>
+
+                <template #column-manufacturerName="{ item }">
+                    {{ item.manufacturerName || $tc('esch-pdc.overview.noManufacturer') }}
+                </template>
+
+                <template #column-missingLabel="{ item }">
+                    {{ missingLabel(item.missing) }}
+                </template>
+
+                <template #column-status="{ item }">
+                    <sw-label :variant="item.status === 'ok' ? 'success' : 'danger'" appearance="pill" size="small">
+                        {{ item.status === 'ok' ? $tc('esch-pdc.overview.statusOk') : $tc('esch-pdc.overview.statusOpen') }}
+                    </sw-label>
+                </template>
+            </sw-data-grid>
+
+            <div class="esch-pdc-overview__pager" v-if="total > limit">
+                <button type="button" data-testid="pdc-page-prev" :disabled="page <= 1" @click="setPage(page - 1)">
+                    {{ $tc('esch-pdc.overview.prev') }}
+                </button>
+                <span data-testid="pdc-page">{{ page }}</span>
+                <button type="button" data-testid="pdc-page-next" :disabled="page * limit >= total" @click="setPage(page + 1)">
+                    {{ $tc('esch-pdc.overview.next') }}
+                </button>
+            </div>
+        </sw-card>
+    </template>
+</sw-page>
+{% endblock %}

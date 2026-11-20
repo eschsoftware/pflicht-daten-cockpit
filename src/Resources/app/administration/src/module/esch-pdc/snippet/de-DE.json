@@ -1,0 +1,42 @@
+{
+    "esch-pdc": {
+        "general": {
+            "menuItem": "Pflichtdaten",
+            "description": "Welche Artikel wegen fehlender GPSR-Herstellerangaben nicht bestellt werden können."
+        },
+        "missing": {
+            "manufacturer": "Hersteller",
+            "name": "Name",
+            "address": "Adresse",
+            "contact": "Kontakt"
+        },
+        "overview": {
+            "title": "Pflicht-Daten-Cockpit",
+            "intro": "Aktive Artikel ohne Herstellername, Postanschrift oder E-Mail-Kontakt lassen sich nicht bestellen. Die Prüfung ist eine technische Hilfe und ersetzt keine rechtliche Bewertung. Sicherheitshinweise und die EU-verantwortliche Person prüft diese Version nicht.",
+            "countChecked": "Geprüft",
+            "countOpen": "Lücken",
+            "countOk": "Vollständig",
+            "filterAll": "Alle",
+            "filterOpen": "Nur Lücken",
+            "filterOk": "Nur vollständige",
+            "searchLabel": "Suche",
+            "searchPlaceholder": "Artikelnummer oder Name",
+            "searchSubmit": "Suchen",
+            "columnNumber": "Artikelnummer",
+            "columnName": "Name",
+            "columnManufacturer": "Hersteller",
+            "columnMissing": "Fehlende Angaben",
+            "columnStatus": "Status",
+            "statusOpen": "Lücke",
+            "statusOk": "Vollständig",
+            "missingNone": "Keine",
+            "noManufacturer": "Kein Hersteller",
+            "openProduct": "Artikel öffnen",
+            "emptyTitle": "Keine Artikel in dieser Ansicht",
+            "emptyText": "Passe den Filter oder die Suche an. Inaktive Artikel und Varianten-Väter erscheinen hier nicht.",
+            "loadError": "Die Übersicht konnte nicht geladen werden. Bitte die Seite neu laden.",
+            "prev": "Zurück",
+            "next": "Weiter"
+        }
+    }
+}
