@@ -2,7 +2,18 @@
     "esch-pdc": {
         "general": {
             "menuItem": "Mandatory data",
-            "description": "Which products cannot be ordered because GPSR manufacturer details are missing."
+            "description": "Which products still lack complete GPSR manufacturer details."
+        },
+        "fields": {
+            "address": "Postal address",
+            "addressPlaceholder": "Street, postal code and city",
+            "contact": "Electronic contact (email)",
+            "contactPlaceholder": "contact@example.com",
+            "help": "These details are the merchant's GPSR duty. The customer does not see this notice."
+        },
+        "saveWarning": {
+            "title": "GPSR details are missing",
+            "message": "Saved. These GPSR details are still missing: {missing}. The customer does not see this notice."
         },
         "missing": {
             "manufacturer": "Manufacturer",
@@ -12,7 +23,7 @@
         },
         "overview": {
             "title": "Mandatory Data Cockpit",
-            "intro": "Active products without a manufacturer name, postal address or email contact cannot be ordered. This check is a technical aid and does not replace a legal assessment. This version does not check safety instructions or the EU responsible person.",
+            "intro": "Active products without a manufacturer name, postal address or email contact are a gap. Saving stays possible and shows a warning. Customers do not see this check. It is a technical aid and does not replace a legal assessment.",
             "countChecked": "Checked",
             "countOpen": "Gaps",
             "countOk": "Complete",
@@ -33,7 +44,7 @@
             "noManufacturer": "No manufacturer",
             "openProduct": "Open product",
             "emptyTitle": "No products in this view",
-            "emptyText": "Change the filter or the search. Inactive products and parent products with variants are hidden.",
+            "emptyText": "Change the filter or the search. Inactive products and parent products with variants are hidden. Variants use the parent's details.",
             "loadError": "The overview could not be loaded. Reload the page.",
             "prev": "Previous",
             "next": "Next"

@@ -17,11 +17,6 @@ final readonly class CatalogGap
     ) {
     }
 
-    public function blocksCheckout(): bool
-    {
-        return $this->status === 'open';
-    }
-
     /**
      * @return array{
      *     productId: string,

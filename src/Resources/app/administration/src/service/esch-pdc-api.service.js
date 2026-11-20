@@ -19,6 +19,18 @@ class EschPdcApiService extends ApiService {
             })
             .then((response) => ApiService.handleResponse(response));
     }
+
+    checkGap({ productId, manufacturerId }) {
+        return this.httpClient
+            .get('/_action/esch-pflicht-daten-cockpit/gpsr-manufacturer/check', {
+                params: {
+                    productId: productId || '',
+                    manufacturerId: manufacturerId || '',
+                },
+                headers: this.getBasicHeaders(),
+            })
+            .then((response) => ApiService.handleResponse(response));
+    }
 }
 
 Shopware.Application.addServiceProvider('eschPdcApiService', (container) => {

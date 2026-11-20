@@ -17,7 +17,7 @@ final readonly class RuleFinding
     ) {
     }
 
-    public function blocksCheckout(): bool
+    public function isOpen(): bool
     {
         return $this->status === self::STATUS_OPEN;
     }

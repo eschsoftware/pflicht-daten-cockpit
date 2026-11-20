@@ -2,7 +2,9 @@
 
 namespace EschSoftware\PflichtDatenCockpit\Test\Integration;
 
+use Doctrine\DBAL\Connection;
 use EschSoftware\PflichtDatenCockpit\Administration\GpsrManufacturerController;
+use EschSoftware\PflichtDatenCockpit\Core\GpsrManufacturerDataCleaner;
 use EschSoftware\PflichtDatenCockpit\Core\GpsrManufacturerFieldInstaller;
 use EschSoftware\PflichtDatenCockpit\Core\GpsrManufacturerFields;
 use EschSoftware\PflichtDatenCockpit\Core\GpsrManufacturerScanner;
@@ -103,6 +105,83 @@ final class GpsrManufacturerScannerTest extends TestCase
         self::assertSame(1, $this->fieldSetCount($context));
     }
 
+    public function testVariantChildInheritsTheParentGapAndTheParentStaysOut(): void
+    {
+        $context = Context::createDefaultContext();
+        $salesChannelId = $this->storefrontSalesChannelId($context);
+        $factory = $this->catalog();
+        $prefix = 'PDC-VAR-' . substr(Uuid::randomHex(), 0, 8);
+        $manufacturer = $factory->manufacturer($context, $prefix . ' hersteller', [
+            GpsrManufacturerFields::CONTACT => 'kind@pdc-example.test',
+        ]);
+        $factory->product($context, $salesChannelId, $prefix . '-PARENT', 'Vater', $manufacturer);
+        $parentId = $this->productId($context, $prefix . '-PARENT');
+        $factory->variant($context, $parentId, $prefix . '-CHILD');
+
+        $open = $this->scanner()->scan($context, 1, 25, 'open', $prefix);
+        $byNumber = [];
+        foreach ($open->items as $item) {
+            $byNumber[$item->productNumber] = $item;
+        }
+
+        self::assertArrayNotHasKey($prefix . '-PARENT', $byNumber);
+        self::assertArrayHasKey($prefix . '-CHILD', $byNumber);
+        self::assertSame([GpsrManufacturerRule::MISSING_ADDRESS], $byNumber[$prefix . '-CHILD']->missing);
+        self::assertSame($prefix . ' hersteller', $byNumber[$prefix . '-CHILD']->manufacturerName);
+    }
+
+    public function testNullChildCountStillAppears(): void
+    {
+        $context = Context::createDefaultContext();
+        $salesChannelId = $this->storefrontSalesChannelId($context);
+        $factory = $this->catalog();
+        $prefix = 'PDC-NULL-' . substr(Uuid::randomHex(), 0, 8);
+        $number = $prefix . '-OPEN';
+        $factory->product($context, $salesChannelId, $number, 'Ohne Zähler', null);
+        $productId = $this->productId($context, $number);
+
+        $connection = $this->getContainer()->get(Connection::class);
+        self::assertInstanceOf(Connection::class, $connection);
+        $connection->executeStatement(
+            'UPDATE product SET child_count = NULL WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($productId)],
+        );
+
+        $open = $this->scanner()->scan($context, 1, 25, 'open', $prefix);
+        $numbers = array_map(static fn ($item) => $item->productNumber, $open->items);
+        self::assertContains($number, $numbers);
+    }
+
+    public function testAppDataRemovalClearsOnlyPluginValues(): void
+    {
+        $context = Context::createDefaultContext();
+        $factory = $this->catalog();
+        $name = 'PDC-CLEAN-' . substr(Uuid::randomHex(), 0, 8);
+        $id = $factory->manufacturer($context, $name, [
+            GpsrManufacturerFields::ADDRESS => CatalogFactory::address(),
+            GpsrManufacturerFields::CONTACT => 'clean@pdc-example.test',
+        ]);
+        $this->repository('product_manufacturer.repository')->update([[
+            'id' => $id,
+            'customFields' => [
+                GpsrManufacturerFields::ADDRESS => CatalogFactory::address(),
+                GpsrManufacturerFields::CONTACT => 'clean@pdc-example.test',
+                'pdc_other_field' => 'bleibt',
+            ],
+        ]], $context);
+
+        $cleaner = $this->getContainer()->get(GpsrManufacturerDataCleaner::class);
+        self::assertInstanceOf(GpsrManufacturerDataCleaner::class, $cleaner);
+        $cleaner->removeStoredValues();
+
+        $manufacturer = $this->repository('product_manufacturer.repository')->search(new Criteria([$id]), $context)->get($id);
+        self::assertNotNull($manufacturer);
+        $fields = $manufacturer->getCustomFields() ?? [];
+        self::assertArrayNotHasKey(GpsrManufacturerFields::ADDRESS, $fields);
+        self::assertArrayNotHasKey(GpsrManufacturerFields::CONTACT, $fields);
+        self::assertSame('bleibt', $fields['pdc_other_field'] ?? null);
+    }
+
     public function testControllerRejectsUnknownStatus(): void
     {
         $controller = $this->getContainer()->get(GpsrManufacturerController::class);
@@ -139,6 +218,17 @@ final class GpsrManufacturerScannerTest extends TestCase
         self::assertInstanceOf(EntityRepository::class, $repository);
 
         return $repository;
+    }
+
+    private function productId(Context $context, string $number): string
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('productNumber', $number));
+        $criteria->setLimit(1);
+        $id = $this->repository('product.repository')->searchIds($criteria, $context)->firstId();
+        self::assertIsString($id);
+
+        return $id;
     }
 
     private function storefrontSalesChannelId(Context $context): string

@@ -2,7 +2,18 @@
     "esch-pdc": {
         "general": {
             "menuItem": "Pflichtdaten",
-            "description": "Welche Artikel wegen fehlender GPSR-Herstellerangaben nicht bestellt werden können."
+            "description": "Welche Artikel noch keine vollständigen GPSR-Herstellerangaben haben."
+        },
+        "fields": {
+            "address": "Postanschrift",
+            "addressPlaceholder": "Straße, Postleitzahl und Ort",
+            "contact": "Elektronischer Kontakt (E-Mail)",
+            "contactPlaceholder": "kontakt@example.com",
+            "help": "Diese Angaben gehören zur GPSR-Pflicht des Händlers. Der Endkunde sieht sie hier nicht."
+        },
+        "saveWarning": {
+            "title": "GPSR-Angaben fehlen",
+            "message": "Gespeichert. Für die GPSR-Pflicht fehlen noch: {missing}. Der Endkunde sieht diesen Hinweis nicht."
         },
         "missing": {
             "manufacturer": "Hersteller",
@@ -12,7 +23,7 @@
         },
         "overview": {
             "title": "Pflicht-Daten-Cockpit",
-            "intro": "Aktive Artikel ohne Herstellername, Postanschrift oder E-Mail-Kontakt lassen sich nicht bestellen. Die Prüfung ist eine technische Hilfe und ersetzt keine rechtliche Bewertung. Sicherheitshinweise und die EU-verantwortliche Person prüft diese Version nicht.",
+            "intro": "Aktive Artikel ohne Herstellername, Postanschrift oder E-Mail-Kontakt sind eine Lücke. Speichern bleibt möglich, beim Speichern erscheint eine Warnung. Der Endkunde sieht diese Prüfung nicht. Sie ist eine technische Hilfe und ersetzt keine rechtliche Bewertung.",
             "countChecked": "Geprüft",
             "countOpen": "Lücken",
             "countOk": "Vollständig",
@@ -33,7 +44,7 @@
             "noManufacturer": "Kein Hersteller",
             "openProduct": "Artikel öffnen",
             "emptyTitle": "Keine Artikel in dieser Ansicht",
-            "emptyText": "Passe den Filter oder die Suche an. Inaktive Artikel und Varianten-Väter erscheinen hier nicht.",
+            "emptyText": "Passe den Filter oder die Suche an. Inaktive Artikel und Varianten-Väter erscheinen hier nicht. Varianten übernehmen die Angaben des Vaters.",
             "loadError": "Die Übersicht konnte nicht geladen werden. Bitte die Seite neu laden.",
             "prev": "Zurück",
             "next": "Weiter"

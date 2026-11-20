@@ -1,24 +1,19 @@
 {
     "name": "eschsoftware/pflicht-daten-cockpit",
-    "description": "Prüft GPSR-Herstellerangaben und sperrt den Checkout, solange Name, Adresse oder Kontakt fehlen.",
+    "description": "Prüft GPSR-Herstellerangaben in der Administration. Fehlende Angaben stehen in der Übersicht, beim Speichern erscheint eine Warnung. Der Endkunde sieht nichts.",
     "type": "shopware-platform-plugin",
     "license": "MIT",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "homepage": "https://eschsoftware.de/de/pflicht-daten-cockpit/",
+    "support": {
+        "issues": "https://eschsoftware.de/de/contact/",
+        "source": "https://github.com/eschsoftware/pflicht-daten-cockpit"
+    },
     "authors": [
         {
-            "name": "EschSoftware",
-            "email": "mail@eschsoftware.de",
-            "homepage": "https://eschsoftware.de",
-            "role": "Developer"
+            "name": "EschSoftware"
         }
     ],
-    "support": {
-        "email": "mail@eschsoftware.de",
-        "issues": "https://github.com/eschsoftware/pflicht-daten-cockpit/issues",
-        "source": "https://github.com/eschsoftware/pflicht-daten-cockpit",
-        "docs": "https://eschsoftware.de/de/pflicht-daten-cockpit/"
-    },
     "require": {
         "php": ">=8.2",
         "shopware/core": ">=6.7.16.1 <6.8.0"
@@ -32,8 +27,8 @@
             "en-GB": "Mandatory Data Cockpit"
         },
         "description": {
-            "de-DE": "Prüft GPSR-Herstellerangaben und sperrt den Checkout, solange Name, Adresse oder Kontakt fehlen.",
-            "en-GB": "Checks GPSR manufacturer details and blocks checkout while the name, address or contact is missing."
+            "de-DE": "Prüft GPSR-Herstellerangaben in der Administration. Fehlende Angaben stehen in der Übersicht, beim Speichern erscheint eine Warnung. Der Endkunde sieht nichts.",
+            "en-GB": "Checks GPSR manufacturer details in the Administration. Missing details show in the overview and saving shows a warning. The customer sees nothing."
         },
         "manufacturerLink": {
             "de-DE": "https://eschsoftware.de",

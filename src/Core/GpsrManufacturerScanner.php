@@ -4,6 +4,8 @@ namespace EschSoftware\PflichtDatenCockpit\Core;
 
 use EschSoftware\PflichtDatenCockpit\Core\Rule\GpsrManufacturerRule;
 use EschSoftware\PflichtDatenCockpit\Core\Rule\ProductCheckInput;
+use EschSoftware\PflichtDatenCockpit\Core\Rule\RuleFinding;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -11,6 +13,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 
 class GpsrManufacturerScanner
@@ -19,9 +23,11 @@ class GpsrManufacturerScanner
 
     /**
      * @param EntityRepository<ProductCollection> $productRepository
+     * @param EntityRepository<ProductManufacturerCollection> $manufacturerRepository
      */
     public function __construct(
         private readonly EntityRepository $productRepository,
+        private readonly EntityRepository $manufacturerRepository,
         private readonly GpsrManufacturerRule $rule,
     ) {
     }
@@ -34,22 +40,20 @@ class GpsrManufacturerScanner
         $offset = 0;
 
         do {
-            $criteria = new Criteria();
-            $criteria->addFilter(new EqualsFilter('active', true));
-            $criteria->addFilter(new EqualsFilter('childCount', 0));
-            $criteria->addAssociation('manufacturer');
+            $criteria = $this->catalogCriteria();
             $criteria->addSorting(new FieldSorting('productNumber', FieldSorting::ASCENDING));
             $criteria->setLimit(self::BATCH);
             $criteria->setOffset($offset);
             $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
 
             $products = $this->productRepository->search($criteria, $context);
+            $parents = $this->loadParents($products->getEntities(), $context);
             foreach ($products->getEntities() as $product) {
                 if (!$product instanceof ProductEntity) {
                     continue;
                 }
 
-                $gap = $this->toGap($product);
+                $gap = $this->toGap($product, $this->parentOf($product, $parents));
                 ++$counts['checked'];
                 ++$counts[$gap->status];
 
@@ -91,6 +95,7 @@ class GpsrManufacturerScanner
         $criteria = new Criteria($productIds);
         $criteria->addAssociation('manufacturer');
         $products = $this->productRepository->search($criteria, $context);
+        $parents = $this->loadParents($products->getEntities(), $context);
         $gaps = [];
 
         foreach ($productIds as $productId) {
@@ -100,15 +105,92 @@ class GpsrManufacturerScanner
                 continue;
             }
 
-            $gaps[] = $this->toGap($product);
+            $gaps[] = $this->toGap($product, $this->parentOf($product, $parents));
         }
 
         return $gaps;
     }
 
-    private function toGap(ProductEntity $product): CatalogGap
+    public function findingForManufacturer(string $manufacturerId, Context $context): ?RuleFinding
     {
-        $manufacturer = $product->getManufacturer();
+        $manufacturer = $this->manufacturerRepository->search(new Criteria([$manufacturerId]), $context)->get($manufacturerId);
+
+        if (!$manufacturer instanceof ProductManufacturerEntity) {
+            return null;
+        }
+
+        return $this->rule->evaluate(new ProductCheckInput(
+            true,
+            $this->textOrNull($manufacturer->getName()),
+            $this->customField($manufacturer, GpsrManufacturerFields::ADDRESS),
+            $this->customField($manufacturer, GpsrManufacturerFields::CONTACT),
+        ));
+    }
+
+    private function catalogCriteria(): Criteria
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('active', true));
+        // Varianten (parentId gesetzt), Artikel mit childCount 0 und Artikel,
+        // deren childCount noch NULL ist. Varianten-Väter haben childCount > 0
+        // und keine parentId, die fallen heraus.
+        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
+            new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('parentId', null)]),
+            new EqualsFilter('childCount', null),
+            new EqualsFilter('childCount', 0),
+        ]));
+        $criteria->addAssociation('manufacturer');
+
+        return $criteria;
+    }
+
+    /**
+     * @param iterable<ProductEntity> $products
+     *
+     * @return array<string, ProductEntity>
+     */
+    private function loadParents(iterable $products, Context $context): array
+    {
+        $ids = [];
+        foreach ($products as $product) {
+            if ($product instanceof ProductEntity && \is_string($product->getParentId()) && $product->getParentId() !== '') {
+                $ids[] = $product->getParentId();
+            }
+        }
+
+        $ids = array_values(array_unique($ids));
+        if ($ids === []) {
+            return [];
+        }
+
+        $criteria = new Criteria($ids);
+        $criteria->addAssociation('manufacturer');
+        $parents = [];
+        foreach ($this->productRepository->search($criteria, $context)->getEntities() as $parent) {
+            if ($parent instanceof ProductEntity) {
+                $parents[$parent->getId()] = $parent;
+            }
+        }
+
+        return $parents;
+    }
+
+    /**
+     * @param array<string, ProductEntity> $parents
+     */
+    private function parentOf(ProductEntity $product, array $parents): ?ProductEntity
+    {
+        $parentId = $product->getParentId();
+        if (!\is_string($parentId) || $parentId === '') {
+            return null;
+        }
+
+        return $parents[$parentId] ?? null;
+    }
+
+    private function toGap(ProductEntity $product, ?ProductEntity $parent): CatalogGap
+    {
+        $manufacturer = $this->resolveManufacturer($product, $parent);
         $manufacturerName = null;
         $address = null;
         $contact = null;
@@ -120,13 +202,12 @@ class GpsrManufacturerScanner
                 $manufacturerName = null;
             }
 
-            $customFields = $manufacturer->getCustomFields() ?? [];
-            $address = $this->stringOrNull($customFields[GpsrManufacturerFields::ADDRESS] ?? null);
-            $contact = $this->stringOrNull($customFields[GpsrManufacturerFields::CONTACT] ?? null);
+            $address = $this->customField($manufacturer, GpsrManufacturerFields::ADDRESS);
+            $contact = $this->customField($manufacturer, GpsrManufacturerFields::CONTACT);
         }
 
         $finding = $this->rule->evaluate(new ProductCheckInput(
-            $product->getManufacturerId() !== null || $manufacturer instanceof ProductManufacturerEntity,
+            $this->manufacturerAssigned($product, $manufacturer, $parent),
             $manufacturerName,
             $address,
             $contact,
@@ -153,6 +234,47 @@ class GpsrManufacturerScanner
         $haystack = mb_strtolower($gap->productNumber . ' ' . $gap->productName . ' ' . ($gap->manufacturerName ?? ''));
 
         return mb_strpos($haystack, mb_strtolower($term)) !== false;
+    }
+
+    private function resolveManufacturer(ProductEntity $product, ?ProductEntity $parent): ?ProductManufacturerEntity
+    {
+        $manufacturer = $product->getManufacturer();
+        if ($manufacturer instanceof ProductManufacturerEntity) {
+            return $manufacturer;
+        }
+
+        if ($parent instanceof ProductEntity && $parent->getManufacturer() instanceof ProductManufacturerEntity) {
+            return $parent->getManufacturer();
+        }
+
+        return null;
+    }
+
+    private function manufacturerAssigned(ProductEntity $product, ?ProductManufacturerEntity $manufacturer, ?ProductEntity $parent): bool
+    {
+        if ($product->getManufacturerId() !== null || $manufacturer instanceof ProductManufacturerEntity) {
+            return true;
+        }
+
+        return $parent instanceof ProductEntity && $parent->getManufacturerId() !== null;
+    }
+
+    private function customField(ProductManufacturerEntity $manufacturer, string $name): ?string
+    {
+        $customFields = $manufacturer->getCustomFields() ?? [];
+
+        return $this->stringOrNull($customFields[$name] ?? null);
+    }
+
+    private function textOrNull(mixed $value): ?string
+    {
+        if (!\is_string($value)) {
+            return null;
+        }
+
+        $value = trim($value);
+
+        return $value === '' ? null : $value;
     }
 
     private function stringOrNull(mixed $value): ?string

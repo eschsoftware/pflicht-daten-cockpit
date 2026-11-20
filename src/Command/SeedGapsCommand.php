@@ -3,7 +3,9 @@
 namespace EschSoftware\PflichtDatenCockpit\Command;
 
 use EschSoftware\PflichtDatenCockpit\Core\GpsrManufacturerFields;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -27,8 +29,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 final class SeedGapsCommand extends Command
 {
     /**
-     * @param EntityRepository<\Shopware\Core\Content\Product\ProductCollection> $productRepository
-     * @param EntityRepository<\Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerCollection> $manufacturerRepository
+     * @param EntityRepository<ProductCollection> $productRepository
+     * @param EntityRepository<ProductManufacturerCollection> $manufacturerRepository
      * @param EntityRepository<TaxCollection> $taxRepository
      * @param EntityRepository<SalesChannelCollection> $salesChannelRepository
      */
@@ -46,8 +48,8 @@ final class SeedGapsCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $context = Context::createDefaultContext();
 
-        $this->deletePrefixed($this->productRepository, 'productNumber', 'PDC-GPSR-', $context);
-        $this->deletePrefixed($this->manufacturerRepository, 'name', 'PDC-GPSR ', $context);
+        $this->deleteProducts($context);
+        $this->deleteManufacturers($context);
 
         $tax = $this->taxRepository->search(new Criteria(), $context)->first();
 
@@ -117,8 +119,8 @@ final class SeedGapsCommand extends Command
 
         $io->success('GPSR-Demodaten stehen.');
         $io->listing([
-            'PDC-GPSR-OK ist vollständig und bestellbar.',
-            'PDC-GPSR-NO-MANUFACTURER, PDC-GPSR-NO-ADDRESS und PDC-GPSR-NO-EMAIL sperren den Checkout.',
+            'PDC-GPSR-OK ist vollständig.',
+            'PDC-GPSR-NO-MANUFACTURER, PDC-GPSR-NO-ADDRESS und PDC-GPSR-NO-EMAIL sind Lücken in der Übersicht. Der Checkout bleibt offen.',
             'PDC-GPSR-INACTIVE erscheint nicht in der Übersicht.',
         ]);
 
@@ -168,7 +170,20 @@ final class SeedGapsCommand extends Command
         ];
     }
 
-    private function deletePrefixed(EntityRepository $repository, string $field, string $prefix, Context $context): void
+    private function deleteProducts(Context $context): void
+    {
+        $this->deleteIds($this->productRepository, 'productNumber', 'PDC-GPSR-', $context);
+    }
+
+    private function deleteManufacturers(Context $context): void
+    {
+        $this->deleteIds($this->manufacturerRepository, 'name', 'PDC-GPSR ', $context);
+    }
+
+    /**
+     * @param EntityRepository<ProductCollection>|EntityRepository<ProductManufacturerCollection> $repository
+     */
+    private function deleteIds(EntityRepository $repository, string $field, string $prefix, Context $context): void
     {
         $criteria = new Criteria();
         $criteria->addFilter(new PrefixFilter($field, $prefix));

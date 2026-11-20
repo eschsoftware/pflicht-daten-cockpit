@@ -2,7 +2,9 @@
 
 namespace EschSoftware\PflichtDatenCockpit\Administration;
 
+use EschSoftware\PflichtDatenCockpit\Core\CatalogGap;
 use EschSoftware\PflichtDatenCockpit\Core\GpsrManufacturerScanner;
+use EschSoftware\PflichtDatenCockpit\Core\Rule\RuleFinding;
 use Shopware\Core\Framework\Context;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -57,5 +59,45 @@ final class GpsrManufacturerController extends AbstractController
             $status,
             $term === '' ? null : $term,
         )->toArray());
+    }
+
+    #[Route(
+        path: '/api/_action/esch-pflicht-daten-cockpit/gpsr-manufacturer/check',
+        name: 'api.action.esch_pflicht_daten_cockpit.gpsr_manufacturer_check',
+        defaults: ['_acl' => ['esch_pflicht_daten_cockpit:read']],
+        methods: ['GET'],
+    )]
+    public function check(Request $request, Context $context): JsonResponse
+    {
+        $productId = trim($request->query->getString('productId'));
+        $manufacturerId = trim($request->query->getString('manufacturerId'));
+
+        if (($productId === '') === ($manufacturerId === '')) {
+            return new JsonResponse([
+                'error' => 'pass exactly one of productId or manufacturerId',
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
+        if ($productId !== '') {
+            $gap = $this->scanner->inspectIds([$productId], $context)[0] ?? null;
+            if (!$gap instanceof CatalogGap) {
+                return new JsonResponse(['error' => 'product not found'], Response::HTTP_NOT_FOUND);
+            }
+
+            return new JsonResponse([
+                'missing' => $gap->missing,
+                'status' => $gap->status,
+            ]);
+        }
+
+        $finding = $this->scanner->findingForManufacturer($manufacturerId, $context);
+        if (!$finding instanceof RuleFinding) {
+            return new JsonResponse(['error' => 'manufacturer not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        return new JsonResponse([
+            'missing' => $finding->missing,
+            'status' => $finding->status,
+        ]);
     }
 }

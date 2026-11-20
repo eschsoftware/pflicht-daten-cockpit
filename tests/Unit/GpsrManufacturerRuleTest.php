@@ -22,7 +22,7 @@ final class GpsrManufacturerRuleTest extends TestCase
 
         self::assertSame(RuleFinding::STATUS_OPEN, $finding->status);
         self::assertSame([GpsrManufacturerRule::MISSING_MANUFACTURER], $finding->missing);
-        self::assertTrue($finding->blocksCheckout());
+        self::assertTrue($finding->isOpen());
     }
 
     public function testCompleteManufacturerIsOk(): void
@@ -36,7 +36,7 @@ final class GpsrManufacturerRuleTest extends TestCase
 
         self::assertSame(RuleFinding::STATUS_OK, $finding->status);
         self::assertSame([], $finding->missing);
-        self::assertFalse($finding->blocksCheckout());
+        self::assertFalse($finding->isOpen());
     }
 
     public function testBlankNameAddressAndContactAreReportedTogether(): void

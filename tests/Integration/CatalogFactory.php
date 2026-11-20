@@ -84,6 +84,40 @@ final class CatalogFactory
         return $id;
     }
 
+    public function variant(Context $context, string $parentId, string $number): string
+    {
+        $childId = Uuid::randomHex();
+        $groupId = Uuid::randomHex();
+        $optionId = Uuid::randomHex();
+
+        $this->productRepository->upsert([[
+            'id' => $parentId,
+            'configuratorSettings' => [[
+                'option' => [
+                    'id' => $optionId,
+                    'name' => 'Standard',
+                    'group' => [
+                        'id' => $groupId,
+                        'name' => 'PDC ' . substr($optionId, 0, 8),
+                        'displayType' => 'text',
+                        'sortingType' => 'alphanumeric',
+                    ],
+                ],
+            ]],
+        ]], $context);
+
+        $this->productRepository->create([[
+            'id' => $childId,
+            'parentId' => $parentId,
+            'productNumber' => $number,
+            'stock' => 4,
+            'active' => true,
+            'options' => [['id' => $optionId]],
+        ]], $context);
+
+        return $childId;
+    }
+
     public function taxId(Context $context): string
     {
         $id = $this->taxRepository->searchIds(new \Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria(), $context)->firstId();

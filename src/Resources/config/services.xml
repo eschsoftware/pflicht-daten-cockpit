@@ -11,16 +11,12 @@
 
         <service id="EschSoftware\PflichtDatenCockpit\Core\GpsrManufacturerScanner">
             <argument type="service" id="product.repository"/>
+            <argument type="service" id="product_manufacturer.repository"/>
             <argument type="service" id="EschSoftware\PflichtDatenCockpit\Core\Rule\GpsrManufacturerRule"/>
         </service>
 
-        <service id="EschSoftware\PflichtDatenCockpit\Storefront\GpsrCheckoutBlockSubscriber">
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
-        <service id="EschSoftware\PflichtDatenCockpit\Checkout\GpsrManufacturerCartValidator">
-            <argument type="service" id="EschSoftware\PflichtDatenCockpit\Core\GpsrManufacturerScanner"/>
-            <tag name="shopware.cart.validator"/>
+        <service id="EschSoftware\PflichtDatenCockpit\Core\GpsrManufacturerDataCleaner" public="true">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="EschSoftware\PflichtDatenCockpit\Administration\GpsrManufacturerController" public="true">
@@ -31,12 +27,5 @@
             <tag name="controller.service_arguments"/>
         </service>
 
-        <service id="EschSoftware\PflichtDatenCockpit\Command\SeedGapsCommand">
-            <argument type="service" id="product.repository"/>
-            <argument type="service" id="product_manufacturer.repository"/>
-            <argument type="service" id="tax.repository"/>
-            <argument type="service" id="sales_channel.repository"/>
-            <tag name="console.command"/>
-        </service>
     </services>
 </container>
