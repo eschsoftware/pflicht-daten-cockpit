@@ -1,0 +1,57 @@
+{
+    "name": "eschsoftware/pflicht-daten-cockpit",
+    "description": "Prüft GPSR-Herstellerangaben und sperrt den Checkout, solange Name, Adresse oder Kontakt fehlen.",
+    "type": "shopware-platform-plugin",
+    "license": "MIT",
+    "version": "1.0.0",
+    "homepage": "https://eschsoftware.de/de/pflicht-daten-cockpit/",
+    "authors": [
+        {
+            "name": "EschSoftware",
+            "email": "mail@eschsoftware.de",
+            "homepage": "https://eschsoftware.de",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "email": "mail@eschsoftware.de",
+        "issues": "https://github.com/eschsoftware/pflicht-daten-cockpit/issues",
+        "source": "https://github.com/eschsoftware/pflicht-daten-cockpit",
+        "docs": "https://eschsoftware.de/de/pflicht-daten-cockpit/"
+    },
+    "require": {
+        "php": ">=8.2",
+        "shopware/core": ">=6.7.16.1 <6.8.0"
+    },
+    "extra": {
+        "shopware-plugin-class": "EschSoftware\\PflichtDatenCockpit\\EschSoftwarePflichtDatenCockpit",
+        "plugin-icon": "src/Resources/config/plugin.png",
+        "copyright": "(c) EschSoftware",
+        "label": {
+            "de-DE": "Pflicht-Daten-Cockpit",
+            "en-GB": "Mandatory Data Cockpit"
+        },
+        "description": {
+            "de-DE": "Prüft GPSR-Herstellerangaben und sperrt den Checkout, solange Name, Adresse oder Kontakt fehlen.",
+            "en-GB": "Checks GPSR manufacturer details and blocks checkout while the name, address or contact is missing."
+        },
+        "manufacturerLink": {
+            "de-DE": "https://eschsoftware.de",
+            "en-GB": "https://eschsoftware.de"
+        },
+        "supportLink": {
+            "de-DE": "https://eschsoftware.de/de/contact/",
+            "en-GB": "https://eschsoftware.de/de/contact/"
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "EschSoftware\\PflichtDatenCockpit\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "EschSoftware\\PflichtDatenCockpit\\Test\\": "tests/"
+        }
+    }
+}
