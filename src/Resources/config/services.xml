@@ -1,0 +1,42 @@
+<?xml version="1.0" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <service id="EschSoftware\PflichtDatenCockpit\Core\Rule\GpsrManufacturerRule"/>
+
+        <service id="EschSoftware\PflichtDatenCockpit\Core\GpsrManufacturerFieldInstaller" public="true">
+            <argument type="service" id="custom_field_set.repository"/>
+        </service>
+
+        <service id="EschSoftware\PflichtDatenCockpit\Core\GpsrManufacturerScanner">
+            <argument type="service" id="product.repository"/>
+            <argument type="service" id="EschSoftware\PflichtDatenCockpit\Core\Rule\GpsrManufacturerRule"/>
+        </service>
+
+        <service id="EschSoftware\PflichtDatenCockpit\Storefront\GpsrCheckoutBlockSubscriber">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="EschSoftware\PflichtDatenCockpit\Checkout\GpsrManufacturerCartValidator">
+            <argument type="service" id="EschSoftware\PflichtDatenCockpit\Core\GpsrManufacturerScanner"/>
+            <tag name="shopware.cart.validator"/>
+        </service>
+
+        <service id="EschSoftware\PflichtDatenCockpit\Administration\GpsrManufacturerController" public="true">
+            <argument type="service" id="EschSoftware\PflichtDatenCockpit\Core\GpsrManufacturerScanner"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+            <tag name="controller.service_arguments"/>
+        </service>
+
+        <service id="EschSoftware\PflichtDatenCockpit\Command\SeedGapsCommand">
+            <argument type="service" id="product.repository"/>
+            <argument type="service" id="product_manufacturer.repository"/>
+            <argument type="service" id="tax.repository"/>
+            <argument type="service" id="sales_channel.repository"/>
+            <tag name="console.command"/>
+        </service>
+    </services>
+</container>
